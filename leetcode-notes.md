@@ -39,9 +39,19 @@
 `lastSeen[c] = r + 1` → "one past where `c` last showed up." Default `0` means "never seen," so no separate init step is needed, and `left = Math.max(left, lastSeen[c])` just works.
 
 ```java
-left = Math.max(left, lastSeen[s.charAt(right)]);       // shrink if duplicate is inside window
-maxLength = Math.max(maxLength, right - left + 1);      // record window size
-lastSeen[s.charAt(right)] = right + 1;                  // remember where this char was seen
+public int lengthOfLongestSubstring(String s) {
+    int[] lastSeen = new int[128];  // ASCII index, default 0
+    int left = 0, maxLength = 0;
+
+for (int right = 0; right < s.length(); right++) {
+   left = Math.max(left, lastSeen[s.charAt(right)]);       // shrink if duplicate is inside window
+   maxLength = Math.max(maxLength, right - left + 1);      // record window size
+   lastSeen[s.charAt(right)] = right + 1;                  // remember where this char was seen
+
+   }
+
+    return maxLength;
+}
 ```
 
 **Time complexity:** O(n) — the `right` pointer makes a single pass over the string, and `left` only ever moves forward (never resets), so together they do at most 2n steps total.
