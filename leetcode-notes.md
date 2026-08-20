@@ -39,19 +39,9 @@
 `lastSeen[c] = r + 1` → "one past where `c` last showed up." Default `0` means "never seen," so no separate init step is needed, and `left = Math.max(left, lastSeen[c])` just works.
 
 ```java
-public int lengthOfLongestSubstring(String s) {
-    int[] lastSeen = new int[128];  // ASCII index, default 0
-    int left = 0, maxLength = 0;
-
-for (int right = 0; right < s.length(); right++) {
-   left = Math.max(left, lastSeen[s.charAt(right)]);       // shrink if duplicate is inside window
-   maxLength = Math.max(maxLength, right - left + 1);      // record window size
-   lastSeen[s.charAt(right)] = right + 1;                  // remember where this char was seen
-
-   }
-
-    return maxLength;
-}
+left = Math.max(left, lastSeen[s.charAt(right)]);       // shrink if duplicate is inside window
+maxLength = Math.max(maxLength, right - left + 1);      // record window size
+lastSeen[s.charAt(right)] = right + 1;                  // remember where this char was seen
 ```
 
 **Time complexity:** O(n) — the `right` pointer makes a single pass over the string, and `left` only ever moves forward (never resets), so together they do at most 2n steps total.
@@ -677,3 +667,101 @@ Dry run on `[0,1,0,2,1,0,1,3,2,1,2,1]`: final `water = 6`, driven mainly by the 
 **Time complexity:** O(n) — each pointer moves inward once per step, together covering the array in a single pass.
 
 **Space complexity:** O(1) — only `left`, `right`, `leftMax`, `rightMax`, `water` as extra variables.
+
+# 1248. Count Number of Nice Subarrays (Medium) — Sliding Window (At-Most Trick)
+
+**Data structure:** Array (no stack/queue — just `start`/`end`/`totalOdd` ints)
+**Technique:** Sliding Window, "exactly K = atMost(K) − atMost(K−1)" transformation
+
+Given an array and `k`, count subarrays containing exactly `k` odd numbers.
+
+**5-second recall:**
+- Counting "exactly k" directly is hard with a normal window — counting "at most k" is easy, so exact = atMost(k) − atMost(k−1).
+- `totalSubArray(nums, k)` = number of subarrays with **at most** `k` odd numbers, using a standard shrinking window.
+- Window invariant: `totalOdd` = count of odd numbers between `start` and `end` inclusive.
+- Shrink while `totalOdd > k`: if `nums[start]` is odd, decrement `totalOdd`, then `start++`.
+- After shrinking (window now valid), every subarray ending at `end` and starting anywhere from `start` to `end` is valid → add `(end - start + 1)`.
+- Same helper called twice with `k` and `k-1`; the difference isolates subarrays with *exactly* `k` odds.
+
+```
+   totalSubArray(nums, K) = count of subarrays with AT MOST K odd numbers
+
+   for end = 0 .. n-1:
+       if nums[end] is odd: totalOdd++
+
+       while totalOdd > K:                    // window has too many odds — shrink
+           if nums[start] is odd: totalOdd--
+           start++
+
+       totalSubArray += (end - start + 1)     // every subarray [start..end], [start+1..end], ... [end..end] is valid
+
+   answer = totalSubArray(nums, k) - totalSubArray(nums, k-1)
+```
+
+```
+ nums = [1, 1, 2, 1, 1]   k = 3     [x] = current end position
+
+ atMost(3):  every window ever has ≤3 odds (array only has 4 odds total, window rarely shrinks)
+   end=0 [1]        totalOdd=1  start=0 → count += (0-0+1)=1   → total=1
+   end=1 [1,1]      totalOdd=2  start=0 → count += (1-0+1)=2   → total=3
+   end=2 [1,1,2]    totalOdd=2  start=0 → count += (2-0+1)=3   → total=6
+   end=3 [1,1,2,1]  totalOdd=3  start=0 → count += (3-0+1)=4   → total=10
+   end=4 [...1,1]   totalOdd=4 >3 → shrink: nums[0]=1 odd→totalOdd=3, start=1
+                     count += (4-1+1)=4   → total=14
+   atMost(3) = 14
+
+ atMost(2):
+   end=0  totalOdd=1              count += 1               → total=1
+   end=1  totalOdd=2              count += 2               → total=3
+   end=2  totalOdd=2              count += 3               → total=6
+   end=3  totalOdd=3 >2 → shrink: nums[0]=1 odd→totalOdd=2, start=1
+                     count += (3-1+1)=3   → total=9
+   end=4  totalOdd=3 >2 → shrink: nums[1]=1 odd→totalOdd=2, start=2
+                     count += (4-2+1)=3   → total=12
+   atMost(2) = 12
+
+ answer = 14 - 12 = 2   ✓ matches expected output
+```
+
+The reason `atMost(k) − atMost(k−1)` works: every subarray with at most `k` odds either has *exactly* `k` odds or *at most* `k−1` odds — those two groups are disjoint and cover everything counted in `atMost(k)`. Subtracting off the `atMost(k−1)` group leaves only the "exactly `k`" group. This sidesteps the awkward part of exact-count sliding window (a window with exactly `k` odds can't just grow or shrink by one rule — adding an odd number can jump you from `k` straight past it), by reframing the problem as two easy monotonic windows instead of one hard one. Inside `totalSubArray`, the shrink loop only fires when the window has *too many* odds, and once it's valid again, `(end - start + 1)` counts every subarray ending at `end` in one shot — that's the same "count all valid windows ending here" trick used in the standard longest-substring sliding window pattern, just applied to counting instead of tracking a max.
+
+```java
+class Solution {
+    public int numberOfSubarrays(int[] nums, int k) {
+        return totalSubArray(nums, k) - totalSubArray(nums, k - 1);
+    }
+
+    public int totalSubArray(int[] nums, int k) {
+        int start = 0;
+        int totalSubArray = 0;
+        int totalOdd = 0;
+
+        for (int end = 0; end < nums.length; end++) {
+            if (nums[end] % 2 != 0) {
+                totalOdd++;
+            }
+
+            // Shrink while the window has more than k odd numbers
+            while (totalOdd > k) {
+                if (nums[start] % 2 != 0) {
+                    totalOdd--;
+                }
+                start++;
+            }
+
+            // Every subarray [start..end] ... [end..end] is now valid (at most k odds)
+            totalSubArray += (end - start) + 1;
+        }
+
+        return totalSubArray;
+    }
+}
+```
+
+**Time complexity:** O(n) — `totalSubArray` runs `end` forward across the array once with `start` only ever moving forward too (never resets), so each call is O(n); called twice (for `k` and `k-1`) keeps it O(n) overall.
+
+**Space complexity:** O(1) — only `start`, `totalOdd`, `totalSubArray` as extra variables, no auxiliary structure.
+
+---
+
+Same "at most K → exactly K" reframing shows up again on LC 992 (Subarrays with K Different Integers) and LC 930 (Binary Subarrays with Sum) — worth flagging those as the same pattern family when you get to them, since the sliding window body barely changes, only what's being counted (odds → distinct values → sum-of-1s).
