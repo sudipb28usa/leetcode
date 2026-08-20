@@ -36,6 +36,8 @@
        stored as 0+1=1
 ```
 
+![Sliding Window dry run](images/sliding_window_dryrun.png)
+
 `lastSeen[c] = r + 1` → "one past where `c` last showed up." Default `0` means "never seen," so no separate init step is needed, and `left = Math.max(left, lastSeen[c])` just works.
 
 ```java
@@ -163,6 +165,8 @@ fill(outputGrid, stoneCount, totalColumns - 1, totalRows - currentRow - 1);     
    mid=7  → row=7/4=1, col=7%4=3 → mat[1][3]=8 == 8 → found!
 ```
 
+![Search a 2D Matrix dry run](images/search_2d_matrix_dryrun.png)
+
 There's no need to search row-by-row and then column-by-column. Since the matrix behaves like a single sorted array of `n * m` elements, a plain binary search works directly on the range `[0, n*m - 1]`. The only extra step is translating a 1-D `mid` back into 2-D coordinates: `row = mid / m` and `col = mid % m`, where `m` is the number of columns. That's the same row/col split you'd use to index into a flattened array — `m` tells you how many elements make up one "row's worth" before you wrap to the next.
 
 ```java
@@ -236,6 +240,8 @@ Given the root of a binary tree, return the level order traversal of its nodes' 
 
  result = [[3], [9,20], [15,7]]
 ```
+
+![Level Order Traversal dry run](images/level_order_dryrun.png)
 
 The `size = queue.size()` line at the top of each `while` iteration is the whole trick — it's what turns a plain queue drain into a *level-by-level* traversal. Without it you'd still visit every node in the right order, but you'd lose the grouping, since nodes from the next level would already be sitting in the queue behind the current level's tail.
 
@@ -318,7 +324,9 @@ public List<List<Integer>> levelOrder(TreeNode root) {
  │ 1 │[2]│[4]│ 5 │ 8 │
  └───┴───┴───┴───┴───┘
 
- Pass 3 — no swaps at all (1<2, 2<4) → swap=false → break early
+ ![Bubble Sort dry run](images/bubble_sort_dryrun.png)
+
+Pass 3 — no swaps at all (1<2, 2<4) → swap=false → break early
 
  Final
  ┌───┬───┬───┬───┬───┐
@@ -399,7 +407,9 @@ public static int[] bubbleSort(int[] arr) {
  │ 1 │[2]│ 4 │ 5 │ 8 │
  └───┴───┴───┴───┴───┘
 
- i=4: key=8 — nothing bigger to its left, no shifts, insert 8 at idx 4
+ ![Insertion Sort dry run](images/insertion_sort_dryrun.png)
+
+i=4: key=8 — nothing bigger to its left, no shifts, insert 8 at idx 4
  ┌───┬───┬───┬───┬───┐
  │ 1 │ 2 │ 4 │ 5 │[8]│
  └───┴───┴───┴───┴───┘
@@ -472,7 +482,9 @@ public static void insertionSort(int[] arr) {
 
  i=2: scan finds min=4 at idx 2 (itself)  → swap idx 2,2 — no-op
  i=3: scan finds min=5 at idx 3 (itself)  → swap idx 3,3 — no-op
- i=4: scan finds min=8 at idx 4 (itself)  → swap idx 4,4 — no-op
+ ![Selection Sort dry run](images/selection_sort_dryrun.png)
+
+i=4: scan finds min=8 at idx 4 (itself)  → swap idx 4,4 — no-op
 
  Final
  ┌───┬───┬───┬───┬───┐
@@ -569,6 +581,8 @@ Given an array of bar heights (each bar width 1), return the area of the largest
  Final area = 10
 ```
 
+![LC 84 dry run](images/lc84_histogram_dryrun.png)
+
 The stack only ever holds bars in non-decreasing height order, and that's the whole invariant: as long as a bar is sitting in the stack, every bar to its right seen so far has been tall enough not to disturb it. The moment a shorter bar shows up at `i`, every taller bar sitting above it in the stack has just met its right wall — it can't stretch past `i`, so its rectangle gets finalized right there with `area = (i - previousIndex) * previousElement[1]`. The `start` inheritance is the part that's easy to miss: when bar B (height 5) gets popped by a shorter bar, the shorter bar doesn't just take height 2 — it also takes B's `start`, because the new shorter bar was standing right where B used to reach back to. That's how one `push` per index still ends up encoding "how far back could this bar's rectangle have started," without ever explicitly scanning backward. The final drain loop is just the same closing step applied to whatever's left once there's no more shorter bar to trigger it — the end of the array acts as an infinitely short bar closing everything out at once, with `n` standing in for `i`.
 
 ```java
@@ -662,6 +676,8 @@ class Solution {
 
 Why it's safe to trust `leftMax` alone when `heights[left] < heights[right]`: whatever `rightMax` turns out to be, it's at least `heights[right]`, which is already bigger than `heights[left]`. So `leftMax` is the real bound at `left` regardless of what's further right — no need to know `rightMax`'s exact value.
 
+![LC 42 dry run](images/lc42_trapwater_dryrun.png)
+
 Dry run on `[0,1,0,2,1,0,1,3,2,1,2,1]`: final `water = 6`, driven mainly by the dips at indices 2, 5, and 6 (added 1, 2, 1 respectively) plus indices 4 and 9 (added 1 each).
 
 **Time complexity:** O(n) — each pointer moves inward once per step, together covering the array in a single pass.
@@ -723,6 +739,8 @@ Given an array and `k`, count subarrays containing exactly `k` odd numbers.
  answer = 14 - 12 = 2   ✓ matches expected output
 ```
 
+![LC 1248 dry run](images/lc1248_dryrun.png)
+
 The reason `atMost(k) − atMost(k−1)` works: every subarray with at most `k` odds either has *exactly* `k` odds or *at most* `k−1` odds — those two groups are disjoint and cover everything counted in `atMost(k)`. Subtracting off the `atMost(k−1)` group leaves only the "exactly `k`" group. This sidesteps the awkward part of exact-count sliding window (a window with exactly `k` odds can't just grow or shrink by one rule — adding an odd number can jump you from `k` straight past it), by reframing the problem as two easy monotonic windows instead of one hard one. Inside `totalSubArray`, the shrink loop only fires when the window has *too many* odds, and once it's valid again, `(end - start + 1)` counts every subarray ending at `end` in one shot — that's the same "count all valid windows ending here" trick used in the standard longest-substring sliding window pattern, just applied to counting instead of tracking a max.
 
 ```java
@@ -765,3 +783,73 @@ class Solution {
 ---
 
 Same "at most K → exactly K" reframing shows up again on LC 992 (Subarrays with K Different Integers) and LC 930 (Binary Subarrays with Sum) — worth flagging those as the same pattern family when you get to them, since the sliding window body barely changes, only what's being counted (odds → distinct values → sum-of-1s).
+
+# 128. Longest Consecutive Sequence (Medium) — Hash Set
+
+**Data structure:** HashSet<Integer>
+**Technique:** Hash Set (Sequence-Start Detection)
+
+Given an unsorted array of integers, find the length of the longest sequence of consecutive integers (they don't need to be contiguous in the array, just consecutive in value).
+
+**5-second recall:**
+- Dump everything into a `HashSet` for O(1) lookups — no sorting needed.
+- Only start counting a sequence from a number where `num - 1` is NOT in the set — that's a guaranteed sequence start.
+- If it's a start, walk forward (`num+1`, `num+2`, ...) counting while each value exists in the set.
+- Track the max streak length seen across all starts.
+- Skipping the "is it a start" check still gives the right answer but degrades to O(n²) — every number re-walks its own subsequence from scratch.
+
+```
+   set = all nums, for O(1) lookup
+
+   for num in set:
+       if (num - 1) NOT in set:            // this num is a sequence START
+           length = 1
+           while (num + length) in set:
+               length++
+           longest = max(longest, length)
+       else:
+           skip — some earlier number already covers this num's sequence
+```
+
+```
+ set = {100, 4, 200, 1, 3, 2}
+
+ check each number — is it a sequence START? (num-1 not in set)
+   100 → 99 not in set → START → count: 100 → 200 not in set → length 1
+   4   → 3 in set → NOT a start → skip
+   200 → 199 not in set → START → count: 200 → 201 not in set → length 1
+   1   → 0 not in set → START → count: 1,2,3,4 → 5 not in set → length 4
+   3   → 2 in set → NOT a start → skip
+   2   → 1 in set → NOT a start → skip
+
+ longest = 4  (the sequence 1,2,3,4)
+```
+
+![LC 128 dry run](images/lc128_dryrun.png)
+
+The "is it a start" check is the entire trick. Without it, every number in the array attempts to walk forward and count its own run — including numbers in the *middle* of a sequence, which just re-counts a subsequence some earlier number already covered. That silently turns a linear algorithm into a quadratic one, with no error or obvious symptom other than being slow on large inputs. Requiring `num - 1` to be absent from the set guarantees only true sequence starts ever enter the counting loop, so across the entire run, the total work done inside all the `while` loops combined is bounded by `n` — each number gets counted at most once, by exactly one starting number.
+
+```java
+class Solution {
+    public int longestConsecutive(int[] nums) {
+        Set<Integer> set = new HashSet<>();
+        for (int num : nums) set.add(num);
+
+        int longest = 0;
+        for (int num : set) {
+            if (!set.contains(num - 1)) {
+                int length = 1;
+                while (set.contains(num + length)) length++;
+                longest = Math.max(longest, length);
+            }
+        }
+        return longest;
+    }
+}
+```
+
+**Time complexity:** O(n) — HashSet build is O(n); the start-check is O(1) per number; the inner while loop's total iterations across all starts sum to n, not n².
+
+**Space complexity:** O(n) — HashSet holds up to n elements.
+
+**Space complexity:** O(1) — only `left`, `right`, `leftMax`, `rightMax`, `water` as extra variables.
