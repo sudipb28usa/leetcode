@@ -1,4 +1,4 @@
-**LeetCode — Longest Substring Without Repeating Characters**
+**1. LeetCode — Longest Substring Without Repeating Characters**
 **Technique:** Sliding Window · **Data Structure:** Array (fixed-size `int[128]` lookup table)
 
 **⚡ Quick Recall (30 sec):** Need the longest substring with no repeated characters. `right` scans forward one char at a time; `left` only ever jumps forward (never resets) when the char at `right` was last seen inside the current window. Time: O(n) / Space: O(1).
@@ -46,7 +46,7 @@ Easy to write `left = lastSeen[...]` directly instead of `Math.max` — without 
 
 ---
 
-**LeetCode — Rotating the Box**
+**2. LeetCode — Rotating the Box**
 **Technique:** Simulation (gravity drop + 90° rotation in one pass) · **Data Structure:** 2D array (`char[][] outputGrid`)
 
 **⚡ Quick Recall (30 sec):** Stones fall under gravity, then the box rotates 90° clockwise — do both in one pass. Scan each row counting consecutive `#`s (`stoneCount`); flush just before an obstacle `*` or at row's end, writing directly into rotated coordinates. Time: O(rows × cols) / Space: O(rows × cols).
@@ -97,7 +97,7 @@ The coordinate flip (`currentColumn` becomes the row, `totalRows - currentRow - 
 
 ---
 
-**LeetCode — Search a 2D Matrix**
+**3. LeetCode — Search a 2D Matrix**
 **Technique:** Binary Search · **Data Structure:** 2D array treated as a flattened array
 
 **⚡ Quick Recall (30 sec):** Matrix rows sorted, and each row's first value exceeds the previous row's last — the whole thing is one sorted array in disguise. Binary search `[0, n*m-1]`, translate `mid` back with `row = mid/m`, `col = mid%m`. Time: O(log(n×m)) / Space: O(1).
@@ -141,7 +141,7 @@ Using `n` instead of `m` here is a common slip — `m` (column count) is what de
 
 ---
 
-**LeetCode 102 — Binary Tree Level Order Traversal**
+**4. LeetCode 102 — Binary Tree Level Order Traversal**
 **Technique:** Breadth-First Search (BFS) · **Data Structure:** Queue (`LinkedList<TreeNode>`)
 
 **⚡ Quick Recall (30 sec):** Need node values grouped level by level. BFS with a queue, but freeze `size = queue.size()` before popping each level — that's what keeps levels from bleeding together. Time: O(n) / Space: O(n).
@@ -190,7 +190,7 @@ Skipping this line still visits every node correctly, but loses the level groupi
 
 ---
 
-**LeetCode — Bubble Sort**
+**5. LeetCode — Bubble Sort**
 **Technique:** Bubble Sort (adjacent swap, comparison-based) · **Data Structure:** Array (in-place)
 
 **⚡ Quick Recall (30 sec):** Repeatedly swap adjacent out-of-order pairs; each pass "bubbles" the largest remaining value to the right edge of the unsorted zone. Early-exit with a `swap` flag if a full pass makes zero swaps. Time: O(n²) worst / O(n) best / Space: O(1).
@@ -233,7 +233,7 @@ The `-i-1` bound is easy to get off-by-one on — it shrinks because the last `i
 
 ---
 
-**LeetCode — Insertion Sort**
+**6. LeetCode — Insertion Sort**
 **Technique:** Insertion Sort (shift-and-insert, comparison-based) · **Data Structure:** Array (in-place)
 
 **⚡ Quick Recall (30 sec):** Everything left of `i` is always sorted. Pull `key = arr[i]`, slide bigger elements right one at a time (`arr[j+1] = arr[j]`), insert `key` where the sliding stops. Time: O(n²) worst / O(n) best / Space: O(1).
@@ -282,7 +282,7 @@ The final insert (`arr[j+1] = key`) is correct whether the loop stopped from `j 
 
 ---
 
-**LeetCode — Selection Sort**
+**7. LeetCode — Selection Sort**
 **Technique:** Selection Sort (find-min-then-swap, comparison-based) · **Data Structure:** Array (in-place)
 
 **⚡ Quick Recall (30 sec):** Outer loop locks index `i`; inner loop scans the rest hunting for the smallest value's index only (no swaps during scan); exactly ONE swap closes out each `i`. Always exactly `n` swaps, even on sorted input. Time: O(n²) always / Space: O(1).
@@ -329,7 +329,7 @@ This runs every single outer iteration, even when `minIndex == i` — it's easy 
 
 ---
 
-**LeetCode 84 — Largest Rectangle in Histogram**
+**8. LeetCode 84 — Largest Rectangle in Histogram**
 **Technique:** Monotonic Stack · **Data Structure:** Stack (`Stack<int[]>` holding `[start, height]` pairs)
 
 **⚡ Quick Recall (30 sec):** Find the largest rectangle in a histogram. Stack holds `[start, height]` pairs in non-decreasing height order — when a shorter bar shows up, pop and close out every taller bar, inheriting its `start` so the current bar can reach back through it. Time: O(n) / Space: O(n).
@@ -395,7 +395,7 @@ Easy to miss — when a bar gets popped, the new bar being pushed inherits its `
 
 ---
 
-**LeetCode 42 — Trapping Rain Water**
+**9. LeetCode 42 — Trapping Rain Water**
 **Technique:** Two Pointer · **Data Structure:** Array (no stack — `left`/`right`/`leftMax`/`rightMax` ints)
 
 **⚡ Quick Recall (30 sec):** Find trapped water between bars after rain. Two pointers close in from both ends; whichever side is shorter is safe to process using only that side's running max — the other side's max is always at least as big. Time: O(n) / Space: O(1).
@@ -443,7 +443,7 @@ Trusting `leftMax` alone here feels incomplete — it's easy to think you need `
 
 ---
 
-**LeetCode 1248 — Count Number of Nice Subarrays**
+**10. LeetCode 1248 — Count Number of Nice Subarrays**
 **Technique:** Sliding Window, "exactly K = atMost(K) − atMost(K−1)" transformation · **Data Structure:** Array (`start`/`end`/`totalOdd` ints)
 
 **⚡ Quick Recall (30 sec):** Count subarrays with exactly `k` odd numbers. Counting "exactly k" directly with a sliding window doesn't work cleanly — count "at most k" instead, then `exactly k = atMost(k) - atMost(k-1)`. Time: O(n) / Space: O(1).
@@ -497,7 +497,7 @@ It's tempting to try to solve "exactly k" directly in one pass — this subtract
 
 ---
 
-**LeetCode 128 — Longest Consecutive Sequence**
+**11. LeetCode 128 — Longest Consecutive Sequence**
 **Technique:** Hash Set (Sequence-Start Detection) · **Data Structure:** HashSet<Integer>
 
 **⚡ Quick Recall (30 sec):** Unsorted array, need the longest run of consecutive integers without sorting (O(n) required). Dump everything into a HashSet, then only start counting from a number where `num - 1` is NOT in the set — a guaranteed sequence start. Walk forward while present. Time: O(n) / Space: O(n).
@@ -543,3 +543,72 @@ Skip this check and the algorithm still gives the right answer, but every number
 **Key trick to remember:** Only count forward from a number where `num - 1` is missing from the set. That single check is what keeps the total work linear instead of quadratic.
 
 **Pattern tag:** Hash Set — same family as other "skip sorting, use O(1) lookups + a smart start condition" problems.
+
+---
+
+**12. LeetCode 54 — Spiral Matrix**
+**Technique:** Boundary Shrinking (matrix traversal) · **Data Structure:** 2D array (no extra structure — `top`/`bottom`/`left`/`right` ints)
+
+**⚡ Quick Recall (30 sec):** Return all elements of an m×n matrix in spiral order. Track four shrinking boundaries (`top`, `bottom`, `left`, `right`); walk each edge in order (top row L→R, right col T→B, bottom row R→L, left col B→T), shrinking the boundary just walked. Guard the last two walks with `if` checks to avoid double-counting. Time: O(m×n) / Space: O(1) extra.
+
+**Approach:**
+1. Set `top=0`, `bottom=rows-1`, `left=0`, `right=cols-1`.
+2. While `top <= bottom && left <= right`: walk top row left→right, then `top++`.
+3. Walk right column top→bottom, then `right--`.
+4. If `top <= bottom`: walk bottom row right→left, then `bottom--`.
+5. If `left <= right`: walk left column bottom→top, then `left++`.
+
+**ASCII Trace:**
+```
+ matrix = [[1,2,3],
+           [4,5,6],
+           [7,8,9]]
+
+ top=0, bottom=2, left=0, right=2, result=[]
+
+ Round 1:
+   walk row top=0, cols 0→2:      1, 2, 3          result=[1,2,3]      top=1
+   walk col right=2, rows 1→2:    6, 9             result=[1,2,3,6,9]  right=1
+   top(1)<=bottom(2)? yes
+     walk row bottom=2, cols 1→0: 8, 7             result+=[8,7]       bottom=1
+   left(0)<=right(1)? yes
+     walk col left=0, rows 1→1:   4                result+=[4]         left=1
+
+ State now: top=1, bottom=1, left=1, right=1 — only cell [1][1]=5 unvisited
+
+ Round 2: top(1)<=bottom(1) && left(1)<=right(1) → loop runs again
+   walk row top=1, cols 1→1:      5                result+=[5]         top=2
+   walk col right=1, rows 2→1:    (empty range, top=2 > bottom=1)      right=0
+   top(2)<=bottom(1)? no → skip bottom row
+   left(1)<=right(0)? no → skip left col
+
+ top=2, bottom=1 → top>bottom → loop ends
+
+ Final result = [1, 2, 3, 6, 9, 8, 7, 4, 5]
+```
+
+**Complexity:**
+- Time: O(m × n) — every cell is visited and added to the result exactly once.
+- Space: O(1) extra — only `top`, `bottom`, `left`, `right` (not counting the output list, required regardless).
+
+**Tricky part of the code:**
+```java
+if (top <= bottom) {
+    for (int col = right; col >= left; col--) {
+        result.add(matrix[bottom][col]);
+    }
+    bottom--;
+}
+
+if (left <= right) {
+    for (int row = bottom; row >= top; row--) {
+        result.add(matrix[row][left]);
+    }
+    left++;
+}
+```
+Without these two guards, a matrix that collapses to a single leftover row or column gets double-counted — the bottom-row and left-column walks would re-walk cells the top-row/right-column walks just visited, once `top` and `bottom` (or `left` and `right`) meet at the same index.
+
+**Key trick to remember:** The two `if` guards are what separates a correct spiral from one that only works on "nice" matrices. Once the boundaries collapse to a single remaining row or column, walking it once (via the top-row or right-column pass) is enough — walking it again unconditionally as a "bottom row" or "left column" revisits the same cells.
+
+**Pattern tag:** Boundary Shrinking — same mental model as LC 48 (Rotate Image, layer by layer) and LC 59 (Spiral Matrix II, filling instead of reading).
