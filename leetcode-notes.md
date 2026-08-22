@@ -612,3 +612,84 @@ Without these two guards, a matrix that collapses to a single leftover row or co
 **Key trick to remember:** The two `if` guards are what separates a correct spiral from one that only works on "nice" matrices. Once the boundaries collapse to a single remaining row or column, walking it once (via the top-row or right-column pass) is enough — walking it again unconditionally as a "bottom row" or "left column" revisits the same cells.
 
 **Pattern tag:** Boundary Shrinking — same mental model as LC 48 (Rotate Image, layer by layer) and LC 59 (Spiral Matrix II, filling instead of reading).
+
+# 13. 48 -Rotate Image (Medium) — Layer-by-Layer Cyclic Swap
+
+**Data structure:** 2D array (in-place, no auxiliary matrix — just `l`/`r`/`t`/`b` boundary ints)
+**Technique:** Matrix Traversal (4-way cyclic rotation, ring by ring)
+
+Given an n x n matrix, rotate it 90° clockwise in place.
+
+**5-second recall:**
+- Four boundaries `l, r, t, b` define the current ring — start at the outermost, shrink inward each pass.
+- Inner loop `i` walks `0 .. (r - l - 1)` along the top edge of the current ring — stops one short of the corner, since that corner gets covered by the wraparound from `i=0` of the next side.
+- One `top` temp holds the top value; the swap chain runs counter-clockwise: **top ← left, left ← bottom, bottom ← right, right ← top(saved)**.
+- After a full ring: `l++, r--, t++, b--` — shrink to the next ring in.
+- Loop condition `l < r` — a single center cell (odd n) or empty middle never needs swapping.
+
+```
+   for each ring (l,r,t,b), for i = 0 .. (r-l-1):
+
+     top = matrix[t][l+i]
+     matrix[t][l+i]   = matrix[b-i][l]      // left  -> top
+     matrix[b-i][l]   = matrix[b][r-i]      // bottom-> left
+     matrix[b][r-i]   = matrix[t+i][r]      // right -> bottom
+     matrix[t+i][r]   = top                 // top(saved) -> right
+
+   then: l++, r--, t++, b--
+```
+
+```
+ matrix = [[1,2,3],
+           [4,5,6],
+           [7,8,9]]      n=3, l=0,r=2,t=0,b=2
+
+ Ring 0, i=0..0 (r-l-1 = 1, so only i=0):
+
+ i=0:  top = matrix[0][0] = 1
+       matrix[0][0] = matrix[2][0] = 7     -> top-left  = 7
+       matrix[2][0] = matrix[2][2] = 9     -> bot-left  = 9
+       matrix[2][2] = matrix[0][2] = 3     -> bot-right = 3
+       matrix[0][2] = top = 1              -> top-right = 1
+
+ After ring 0:
+       [[7,2,1],
+        [4,5,6],
+        [9,8,3]]
+
+ l++,r--,t++,b--  -> l=1,r=1 -> loop ends (l < r fails, single center cell 5 needs no swap)
+
+ Final:
+       [[7,4,1],
+        [8,5,2],
+        [9,6,3]]
+```
+
+The whole matrix is a stack of concentric square "rings," and each ring is 4 edges that need to rotate into each other simultaneously. Doing this in place is only safe because of the order: save the top value first (`top`), then overwrite top from left, left from bottom, bottom from right, and finally right from the saved `top` — a 4-way cycle closed by holding exactly one value outside the array at a time. The inner loop only needs to go one short of the ring's width (`i < r-l`, i.e. `l+i < r`) because each iteration handles one full 4-cell group (one from each edge), and the last position of each edge is already covered by the group that starts at that edge's own `i=0` — going further would double-swap the corners.
+
+```java
+class Solution {
+    public void rotate(int[][] matrix) {
+        int n = matrix.length;
+        int l = 0, r = n - 1;
+        int t = l, b = r;
+        while (l < r) {
+            for (int i = 0; (l + i) < r; i++) {
+                int top = matrix[t][l + i];
+                matrix[t][l + i] = matrix[b - i][l];
+                matrix[b - i][l] = matrix[b][r - i];
+                matrix[b][r - i] = matrix[t + i][r];
+                matrix[t + i][r] = top;
+            }
+            l++;
+            r--;
+            t++;
+            b--;
+        }
+    }
+}
+```
+
+**Time complexity:** O(n²) — every cell is touched exactly once across all rings combined.
+
+**Space complexity:** O(1) — in-place; `top` is the only extra variable, no auxiliary matrix.
