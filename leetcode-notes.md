@@ -697,6 +697,7 @@ class Solution {
 
 **#14. LeetCode 200 — Number of Islands**
 **14. LeetCode 200 — Number of Islands**
+**1. LeetCode — Longest Substring Without Repeating Characters**
 
 **Technique:** DFS (grid flood-fill, in-place mutation) · **Data Structure:** None — no visited array, no queue; uses the call stack only
 
