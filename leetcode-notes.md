@@ -693,3 +693,33 @@ class Solution {
 **Time complexity:** O(n²) — every cell is touched exactly once across all rings combined.
 
 **Space complexity:** O(1) — in-place; `top` is the only extra variable, no auxiliary matrix.
+
+
+#14. LeetCode 200 — Number of Islands
+
+**Technique:** DFS (grid flood-fill, in-place mutation) · **Data Structure:** None — no visited array, no queue; uses the call stack only
+
+**⚡ Quick Recall (30 sec):** Same island-counting problem, but drop the `boolean[][] visited` array entirely by sinking each explored land cell directly in the input grid (`grid[r][c] = '0'`) — a `'0'` cell fails the `!= '1'` check, so it can never be re-explored. Swap BFS/queue for recursive DFS, so the call stack does the "remember where to go" job instead of an explicit queue. Time: O(m×n) / Space: O(1) auxiliary (see caveat below).
+
+**Approach:**
+1. Scan every cell `(i, j)`; if `grid[i][j] == '1'`, call `dfs(grid, i, j)` and increment `totalIsland`.
+2. `dfs` base case: out of bounds or `grid[r][c] != '1'` → return immediately.
+3. Otherwise, sink the cell: `grid[r][c] = '0'` — this IS the visited mark.
+4. Recurse into all 4 directions.
+
+**Why this drops space from O(m×n) to O(1):**
+The BFS version needed a `boolean[][] visited` array (O(m×n)) plus a `Queue<int[]>` that could hold up to O(m×n) cells at once in the worst case. The DFS-in-place version needs neither — visited-tracking is folded into the grid mutation itself (no extra array), and the "next cells to explore" bookkeeping is handled implicitly by the recursive call stack instead of an explicit queue object.
+
+**Tricky part of the code:**
+```java
+grid[r][c] = '0';   // mark visited by sinking the land — no separate visited array
+```
+Easy to forget this line entirely and just recurse — without it, every cell gets revisited infinitely and the recursion never terminates (stack overflow). This single mutation is doing double duty: it's both the "flood fill" and the "visited" mechanism at once.
+
+**Key trick to remember:** Mutating the input to encode "visited" state (sinking `'1'` → `'0'`) is a standard space-saving trick whenever the input is disposable — it replaces an O(m×n) auxiliary structure with zero extra memory, at the cost of destroying the original grid.
+
+**Honest caveat on "O(1)":** The recursive call stack itself can go O(m×n) deep in the worst case (e.g., one long snake-shaped island spanning the whole grid) — so this is O(1) *extra data-structure* space, not O(1) counting the call stack. Worth stating explicitly if an interviewer pushes on "is this truly O(1)?" — the fully rigorous answer is O(1) auxiliary space, O(m×n) implicit recursion-stack space in the worst case.
+
+**Trade-off to flag out loud in an interview:** this destroys the input grid (`'1'`s become `'0'`s). Acceptable here since the grid isn't needed afterward, but worth naming as a conscious choice rather than a side effect.
+
+**Pattern tag:** Grid DFS / In-Place Mutation — same space-saving trick applies to LC 130 (Surrounded Regions) and LC 733 (Flood Fill) whenever the input grid is safe to overwrite.
